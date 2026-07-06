@@ -1,0 +1,72 @@
+Feature: Tropicalizacion del reporte "Ventas Por Sucursal" del modulo de informes gerenciales
+
+    Yo como usuario del reporte Ventas Por Sucursal del modulo de informes gerenciales
+    Requiero que el reporte se encuentre adaptada para el uso con moneda de quetzales
+    Para que el reporte encaje con las actividades realizadas en el pais de guatemala.
+
+Background:
+    Given que el usuario se encuentra dentro de una base de datos del pais de guatemala
+    And ingresa al reporte "Ventas Por Sucursal"
+
+Scenario: Nueva opcion "Quetzales" en filtro "Moneda"
+    When el usuario consulte el filtro "Moneda"
+    Then en el combo aparecera la opcion "Quetzales" en lugar de pesos
+    And en el combo se visualizaran solo las siguientes opciones:
+    | Moneda    |
+    | QUETZALES |
+    | DOLARES   |
+
+Scenario: Signo de Quetzales en columnas "Monto"
+    When el usuario genera el reporte con la moneda "Quetzales" en el filtro de moneda
+    And consulte las columnas "Monto"
+    Then las columnas muestran los importes de los registros realizados en moneda nacional con el signo de quetzales "Q"
+
+Scenario: Signo de Quetzales en total
+    When el usuario genera el reporte con la moneda "Quetzales" en el filtro de moneda
+    And consulte el total del reporte
+    Then los importes de los registros realizados en moneda nacional con el signo de quetzales "Q"
+
+Scenario: Signo de Quetzales en gran total del reporte
+    When el usuario genera el reporte con la moneda "Quetzales" en el filtro de moneda
+    And consulte el gran total del reporte
+    Then los importes de los registros realizados en moneda nacional con el signo de quetzales "Q"
+
+Scenario: Ajuste a la descripcion general de las condiciones del reporte
+    Given que el usuario ingresa a la condiciones del reporte
+    When consulte la descripcion general de las descripciones
+    Then contara con la siguientes descripcion 
+    "Este informe presenta un resumen de las ventas realizadas por cada sucursal seleccionada de la empresa. Proporciona una visión de las ventas totales, 
+    desglosadas por el tipo de viaje y el estado de facturación abarcando del 1 al 12 de Mayo del 2026, los resultados obtenidos se van a filtrar por moneda quetzales."
+
+Scenario Outline: Aplicar ajustes en exportación a Excel
+  Given que el usuario exporta el reporte "Ventas Por Sucursal" a Excel con la opcion "Exportar XLS"
+  When abre el archivo generado
+  Then los cambios solicitados en los escenarios anteriores son visibles en el formato excel
+  And las <formulas> deben poder ejecutarse correctamente de forma directa en Excel.
+
+    Examples:Formulas que el usuario podria aplicar en excel.
+      | formulas    |
+      | Autosuma    |
+      | Multiplicar |
+      | Promedio    |
+
+Scenario: Aplicar ajustes de exportacion a PDF
+    Given que el usuario exporta el reporte "Ventas Por Sucursal" a PDF con la opcion "Imprimir PDF"
+    When abre el archivo generado
+    Then los cambios solicitados en los escenarios anteriores son visibles en el formato PDF
+
+Scenario: Cambiar etiqueta "RFC" a "NIT" en formato PDF
+    Given que el usuario exporta el reporte "Ventas Por Sucursal" a PDF con la opcion "Imprimir PDF"
+    When abre el archivo generado
+    Then el reporte muestra ahora la etiqueta "NIT" en lugar de "RFC" en el encabezado del reporte en PDF
+
+Scenario: Mantener comportamiento actual del reporte para bases de datos de México
+  Given que el usuario accede al reporte "Ventas Por Sucursal" del módulo de informes gerenciales en una base de datos de México
+  When genera el reporte
+  Then el reporte no debe de presentar ningun cambio referente a la tropicalizacion
+  And el proceso debe conservar su funcionamiento actual sin afectaciones
+
+Scenario: El reporte es visible en base de datos de guatemala.
+  Given que el reporte ya se encuentra tropicalizado para el sistema de guatemala.
+  When el usuario entre a una base de datos configurada con el pais de guatemala.
+  Then el sistema debera de mostrar el reporte "Ventas Por Sucursal" en el listado de reportes del modulo de informes gerenciales.
